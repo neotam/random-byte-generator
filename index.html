@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Neo Random Byte Generator | Neo Util Tools </title>
+    <meta name="Description" content="Free Online tool to generate random bytes and choose to display them in desired number system: binary, octal, hexadecimal and decimal">
+    {{#headstart}}
+        {{{ . }}}
+    {{/headstart}}
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="{{{ STATIC_URL }}}/{{{ STATIC_PATH }}}gdeps.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        span.btn-default {
+            background-color: white; 
+        }
+        @media screen and (min-width: 768px) {
+          .form-check {
+            margin-right: 1em; 
+          }
+        }
+        textarea {
+          min-height: 70vh;
+          margin-top: 0.1em; 
+        }
+        #bytecount {
+          width: 5em; 
+          padding: .1em; 
+        }
+
+    </style>
+    <script>
+      window.addEventListener('load', e => {
+        $(window).resize(e => {
+          if (window.matchMedia('screen and (max-width:768px').matches){
+            !$("#clear,#copy,#select").hasClass('btn-sm') && $("#clear,#copy,#select").addClass('btn-sm')
+          } else {
+            $("#clear,#copy,#select").hasClass('btn-sm') && $("#clear,#copy,#select").removeClass('btn-sm')
+          }
+        }
+        )
+      })
+    </script>
+  </head>
+  <body>
+    {{#bodystart}}
+        {{{ . }}}
+    {{/bodystart}}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-2">
+        <div class="container">
+          <a class="navbar-brand" href='#'>Neo Random Byte Generator</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded='false' aria-label='Toggle Navigation' > 
+            <span class='navbar-toggler-icon'></span>
+          </button>
+
+         <div class="collapse navbar-collapse justify-content-end" id="navbar-content">
+          
+          <div class='navbar-nav '>
+              <a class="nav-item nav-link text-white" href="/">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-item nav-link text-white" href="#">About</a>
+          </div>
+
+         </div>
+
+        </div>
+    </nav>
+    <div class="container" style="min-height: 100vh;">
+        <div class="d-none d-md-block alert alert-light alert-dismissible fade show" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="close">
+            <spn aria-hidden="true"> &times; </spn>
+          </button>
+          <p class="lead"> This tool generates the bytes based on psuedo random number generator (PRNG). Use True random number generator (TRNG) for cryptographic operations </p>
+        </div>
+
+        <!-- TODO: Number of digits to group in output -->
+        <div class="d-flex flex-column h-100">
+            <div class="pt-2 pt-md-0">
+                <div class='d-flex justify-content-between'>
+                        <div class='d-sm-block' role='group' aria-label="Button Group">
+                            <button id='clear' type="button" class="btn btn-danger d-none d-md-inline">Clear</button>
+                            <button id='copy' type="button" class="btn btn-info"> <span class="d-none d-md-inline">Copy</span> <span class="d-md-none">⎘</span> </button>
+                            <button id='select' type="button" class="btn btn-warning d-none d-md-inline">Select</button>
+                        </div>
+                        <div class="form-row">
+                          <div class="form-check pr-1">
+                            <input type="radio" class="form-check-input " name="nsystem" id="binary" value="binary" checked>
+                            <label class="form-check-label" for="binary">Binary</label>
+                          </div>
+                          <div class="form-check pr-1">
+                            <input type="radio" class="form-check-input" name="nsystem" id="octal" value="octal">
+                            <label class="form-check-label" for="octal">Octal</label>
+                          </div>
+                          <div class="form-check pr-1">
+                            <input type="radio" class="form-check-input" name="nsystem" id="hexadecimal" value="hexadecimal">
+                            <label class="form-check-label" for="hexadecimal">Hex</label>
+                          </div>
+                          <div class="form-check">
+                            <input type="radio" class="form-check-input" name="nsystem" id="decimal" value="decimal">
+                            <label class="form-check-label" for="decimal">Decimal</label>
+                          </div>
+
+                          <div class="form-check d-none d-md-inline"> 
+                            <input type="radio" class="form-check-input" name="nsystem" id="ascii" value="ascii">
+                            <label class="form-check-label" for="ascii">ASCII</label>
+                          </div>
+                        </div>
+                        <div class="form-inline">
+                          <input type="number" class="form-control" id="bytecount" value="10" placeholder="Bytes Count" > 
+                        </div>
+                       <button id='genbytes' class="btn btn-primary btn-small  " type='button'> 
+                          <span class="" style="font-size: 1.1em;"> &#x21bb; </span>  <span class="d-none d-md-inline"> Generate Bytes</span>
+                      </button> 
+                </div>
+                <textarea class="form-control form-control-lg  h-100" placeholder="Text" id='bytesout'></textarea>
+            </div>
+       </div>
+    </div>
+
+    <footer class="bg-dark d-flex text-white align-content-center justify-content-center  p-2" style="position:fixed; bottom:0px; width:100%;">
+        <div>&copy; All Rights Reserved. </div>
+    </footer>
+    <script src="{{{ STATIC_URL}}}/{{{ STATIC_PATH }}}gdeps.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>

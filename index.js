@@ -4,12 +4,12 @@ window.random = random;
 const BCOUNT_LIMIT = Math.pow(2, 24);
 
 $( e => {
-  $('#genbytes').on('click', e => genBytes());
+  $('#genbytes').on('click', e => genRandBytes());
   registerEvents(); 
 })
 
 // TODO: Perfomrance Optimize and asynchronous 
-function genBytes(){
+function genRandBytes(){
   console.log("Generating Bytes");
   let bcount = $('#bytecount').val(); 
   if (bcount > BCOUNT_LIMIT) 
@@ -27,7 +27,59 @@ function registerEvents(){
     $('#bytesout').val('');
   })
   $('#select').on('click', e=>$('#bytesout').select()); 
+  $('input[name="nsystem"]').on('click', onNsystemClick)
 }
+
+function onNsystemClick(e){
+  console.log("Radio Button Click"); 
+  console.log(e.target.value);
+
+}
+
+
+class ByteInterpreter {
+  constructor() {
+
+  }
+
+  interpret(n){
+    if (n != $('input[name="nsystem"]:checked').val().toLowerCase()){
+      console.log("interpreting")
+      let b = n && (n in this) && this[n]();
+      b && $("")
+    }
+      
+  }
+
+  getCurrentBytes(){
+    return $("#bytesout").val(); 
+  }  
+
+  binary(){
+
+  }
+
+  octal(){
+    let bytes = this.getCurrentBytes(); 
+
+  }
+
+  hexadecimal(){
+
+  }
+
+  decimal(){
+
+  }
+
+  ascii(){
+    
+  }
+
+
+
+}
+
 
 
 function doProcess(bytes){
@@ -46,10 +98,10 @@ function doProcess(bytes){
       updateBytesOut(toHex, bytes)
       break; 
     case 'decimal': 
-      data = toDecimal(bytes); 
+      updateBytesOut(toDecimal, bytes)
       break; 
     case 'ascii': 
-      data = toASCII(bytes);
+      updateBytesOut(toASCII, bytes)
       break; 
     default: 
       console.warn('Invalid Option')
@@ -57,8 +109,9 @@ function doProcess(bytes){
 }
 
 function updateBytesOut(func, bytes){
+  let delimiter = ""; 
   let dataiter = func(bytes); 
-  let data = Array.from(dataiter).join(" ");
+  let data = Array.from(dataiter).join(delimiter);
   $('#bytesout').val(data); 
 }
 
@@ -80,15 +133,19 @@ function* toHex(bytes){
 }
 
 
-function toDecimal(bytes){
-  let data = groupbyCount(bytes, 8)
-  return data.join(" "); 
+function* toDecimal(bytes, nbits=8){
+  let data = groupbyCount(bytes, nbits)
+  for(let i of data){
+    yield parseInt(i, 2); 
+  }
 }
 
 
-function toASCII(bytes){
-  let data = groupbyCount(bytes, 3)
-  return data.join(" "); 
+function* toASCII(bytes){
+  let data = groupbyCount(bytes, 8);
+  for(let i of data){
+    yield String.fromCharCode(parseInt(i, 2));
+  }
 }
 
 function groupbyCount(bytes, n){

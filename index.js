@@ -1,11 +1,14 @@
+
 const random = require('lodash.random'); 
-window.random = random; 
+globalThis.random = random; 
 
 const BCOUNT_LIMIT = Math.pow(2, 24);
 
 $( e => {
   $('#genbytes').on('click', e => genRandBytes());
   registerEvents(); 
+  window.byteInterpreter = new ByteInterpreter(); 
+  globalThis.delimiter = ""; 
 })
 
 // TODO: Perfomrance Optimize and asynchronous 
@@ -27,12 +30,16 @@ function registerEvents(){
     $('#bytesout').val('');
   })
   $('#select').on('click', e=>$('#bytesout').select()); 
-  $('input[name="nsystem"]').on('click', onNsystemClick)
+  $('input[name="nsystem"]').on('click', onNsystemClick);
 }
 
+
+// Change display encoding/charset on radio button change
 function onNsystemClick(e){
-  console.log("Radio Button Click"); 
-  console.log(e.target.value);
+  console.log(e.target.value); 
+  let pSelected = getPreviousRadio(); 
+  let selected = e.target.value; 
+  byteInterpreter.interpret(pSelected, selected)
 
 }
 
@@ -42,12 +49,14 @@ class ByteInterpreter {
 
   }
 
-  interpret(n){
-    if (n != $('input[name="nsystem"]:checked').val().toLowerCase()){
-      console.log("interpreting")
-      let b = n && (n in this) && this[n]();
-      b && $("")
+  interpret(ifrom, ito){
+    if (!ifrom || !ito) {
+      console.log(`Invalid from or to {ifrom} -> {ito}`);
+      return; 
     }
+      console.log(`interpreting from ${ifrom} to ${ito}`)
+      let b = ito && (ito in this) && this[ito](ifrom);
+      // b && $("#bytesout").val(b); 
       
   }
 
@@ -59,12 +68,17 @@ class ByteInterpreter {
 
   }
 
-  octal(){
+  octal(ifrom){
+    console.log("To octal "); 
     let bytes = this.getCurrentBytes(); 
 
   }
 
-  hexadecimal(){
+  hexadecimal(ifrom){
+    console.log("To Hex"); 
+    let bytes = this.getCurrentBytes();
+    updateBytesOut(toHexaDecimal, ToBin.hexToBin(bytes)); 
+
 
   }
 
@@ -81,7 +95,6 @@ class ByteInterpreter {
 }
 
 
-
 function doProcess(bytes){
   bytes = bytes || $('#bytesout').val()
   let nsystem = $('input[name="nsystem"]:checked').val().toLowerCase(); 
@@ -89,13 +102,14 @@ function doProcess(bytes){
   switch (nsystem) {
     case 'binary': 
       data = bytes; 
-      $('#bytesout').val(bytes); 
+      // $('#bytesout').val(bytes); 
+      updateBytesOut(toBinary, bytes);
       break; 
     case 'octal':
       updateBytesOut(toOctal, bytes)
       break; 
     case 'hexadecimal':
-      updateBytesOut(toHex, bytes)
+      updateBytesOut(toHexaDecimal, bytes)
       break; 
     case 'decimal': 
       updateBytesOut(toDecimal, bytes)
@@ -109,12 +123,18 @@ function doProcess(bytes){
 }
 
 function updateBytesOut(func, bytes){
-  let delimiter = ""; 
   let dataiter = func(bytes); 
   let data = Array.from(dataiter).join(delimiter);
+  $("#nsystemradios").data("selected", func.name.replace("to", "").toLowerCase()); 
   $('#bytesout').val(data); 
 }
 
+function* toBinary(bytes){
+  let data = groupbyCount(bytes, 8)
+  for(let i of data){
+    yield i; 
+  }
+}
 
 function* toOctal(bytes){
   let data = groupbyCount(bytes, 3)
@@ -124,10 +144,9 @@ function* toOctal(bytes){
 }
 
 
-function* toHex(bytes){
+function* toHexaDecimal(bytes){
   let data = groupbyCount(bytes, 4)
   for(let i of data){
-    console.log(i);
     yield parseInt(i, 2).toString(16).toUpperCase(); 
   }
 }
@@ -148,9 +167,52 @@ function* toASCII(bytes){
   }
 }
 
+class ToBin {
+  // static _tobin = undefined; 
+
+  constructor() {
+    if(!_tobin){
+      _tobin = this; 
+    }
+    return _tobin; 
+  }
+
+  static *hexToBin(bytes) {
+    let grpby4bits = []; 
+    for(let i of bytes) {
+      if (!i.trim())
+        continue
+      grpby4bits.push(i)
+      if (grpby4bits.length == 4) {
+        grpby4bits.unshift('0', 'o');
+        let bits = eval(grpby4bits.join("")).toString(2)
+        yield bits; 
+        grpby4bits = []
+      }
+      
+    }
+  }
+
+  static *octToBin(bytes) {
+    for(let i of bytes) {
+      if (!i.trim())
+        continue
+      yield parseInt(i, 16).toString(2); 
+    }
+  }
+
+
+
+}
+
 function groupbyCount(bytes, n){
   // Group bytes with n number of digits in each
-  let regx = new RegExp(`.{1,${n}}`, 'g')
+  if (!(typeof bytes === "string" || bytes instanceof String))
+    return bytes; 
+  let regx = new RegExp(`.{1,${n}}`, 'g');
   return bytes.match(regx);
 }
 
+function getPreviousRadio(){
+  return $("#nsystemradios").data("selected");
+}
